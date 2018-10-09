@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+apply plugin: 'findbugs'
+
+findbugs {
+    sourceSets = []
+    ignoreFailures = false
+}
+
+android {
+    compileSdkVersion 27
+
+    defaultConfig {
+        applicationId "protect.budgetwatch"
+        minSdkVersion 14
+        targetSdkVersion 27
+        versionCode 27
+        versionName "0.21.3"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+        debug {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+
+   lintOptions {
+      disable "GoogleAppIndexingWarning"
+      disable "ButtonStyle"
+      disable "IconDipSize"
+      disable "AlwaysShowAction"
+      disable "InflateParams"
+      disable "MissingTranslation"
+   }
+
+    // Starting with Android Studio 3 Robolectric is unable to find resources.
+    // The following allows it to find the resources.
+    testOptions {
+        unitTests {
+            includeAndroidResources = true
+        }
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    compile 'com.android.support:appcompat-v7:27.0.2'
+    compile 'com.android.support:design:27.0.2'
+    compile 'org.apache.commons:commons-csv:1.5'
+    compile group: 'com.google.guava', name: 'guava', version: '20.0'
+    compile 'com.github.apl-devs:appintro:v4.2.0'
+    testCompile 'junit:junit:4.12'
+    testCompile "org.robolectric:robolectric:3.7"
+    testCompile group: 'org.javatuples', name: 'javatuples', version: '1.2'
+}
+
+task findbugs(type: FindBugs, dependsOn: 'assembleDebug') {
+
+    description 'Run findbugs'
+    group 'verification'
+
+    classes = fileTree('build/intermediates/classes/debug/')
+    source = fileTree('src/main/java')
+    classpath = files()
+
+    effort = 'max'
+
+    excludeFilter = file("./config/findbugs/exclude.xml")
+
+    reports {
+        xml.enabled = false
+        html.enabled = true
+    }
+}
